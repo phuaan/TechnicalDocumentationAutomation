@@ -34,6 +34,8 @@ def cleanup_objc_method_class_diag(input_string, modifier):
         string_no_parameters = regex_substitute(input_string=string_no_parameters, pattern="([a-zA-Z]+ )|([a-zA-Z]*;)")
 
     string_with_fixed_return_type = string_no_parameters.replace(" ;", ";").replace(";", ": ").replace(" ", "")
+    string_with_fixed_return_type = regex_substitute(input_string=string_with_fixed_return_type, pattern=":[^:]+$",
+                                                     new_string=":")
     return_type = re.findall(r'^\([^()]+\)', string_no_nsswiftname)
     return_string = ""
 
@@ -57,6 +59,7 @@ def cleanup_objc_method_docum(input_string, modifier):
         string_no_parameters = regex_substitute(input_string=string_no_parameters, pattern="([a-zA-Z]+ )|([a-zA-Z]*;)")
 
     string_with_fixed_return_type = string_no_parameters.replace(" ;", ";").replace(";", ": ").replace(" ", "")
+    string_with_fixed_return_type = regex_substitute(input_string=string_with_fixed_return_type, pattern=":[^:]+$", new_string=":")
     return_type = re.findall(r'^\([^()]+\)', string_no_nsswiftname)
     return_string = ""
 

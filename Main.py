@@ -8,7 +8,7 @@ basedir = ""
 
 window = Tk()
 window.title("Technical Documentation Template Generator - Michael Gunawan")
-window.geometry('500x75')
+window.geometry('525x75')
 window.resizable(width=False, height=False)
 #window.configure(bg='#3E4149')
 if platform.system() == "Darwin":   # if its a Mac
@@ -55,28 +55,23 @@ if platform.system() == "Darwin":   # if its a Mac
     def genClassDiagram():
         if basedir != "":
             objc_class_diagram = ObjectiveC(basedir)
-            objc_class_diagram.generate_class_diagram()
+            objc_class_diagram.generate_class_diagram_plant_uml()
 
 
-    btn3 = Button(text="Generate Class Diagram", command=genClassDiagram)
+    btn3 = Button(text="PlantUml Class Diagram", command=genClassDiagram)
     btn3.grid(column=1, row=2)
 
 
-    def genClassDiagram():
+    def genClassDiagram2():
         if basedir != "":
             objc_class_diagram = ObjectiveC(basedir)
-            objc_class_diagram.generate_class_diagram_image()
+            objc_class_diagram.generate_class_diagram_nomnoml()
 
 
-    btn4 = Button(text="Fix Class Diagram", command=genClassDiagram)
+    btn4 = Button(text="nomnoml Class Diagram", command=genClassDiagram2)
     btn4.grid(column=2, row=2)
 
 
 
     window.mainloop()
-#rootView.withdraw()
-#basedir = filedialog.askdirectory()
-# if basedir != "":
-#     objc_class_diagram = ObjectiveC(basedir)
-#     objc_class_diagram.generate_class_diagram()
-#     objc_class_diagram.generate_documentation()
+

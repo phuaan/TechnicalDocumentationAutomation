@@ -68,11 +68,18 @@ class ObjectiveC:
                     get_line_type(line)
                     if get_line_type(line) == "method":
                         if operation_type == "class diagram":
-                            self.file_names.get(file).private_methods.append(cleanup_objc_method_class_diag(line, "-"))
+                            check_duplicate = cleanup_objc_method_class_diag(line, "+")
+                            print("check dupe", check_duplicate)
+                            print("public method", self.file_names.get(file).public_methods)
+                            if check_duplicate not in self.file_names.get(file).public_methods:
+                                print("pass")
+                                self.file_names.get(file).private_methods.append(cleanup_objc_method_class_diag(line, "-"))
                         elif operation_type == "documentation":
-                            temp_key = cleanup_objc_method_docum(line, "-")
-                            self.file_names.get(file).private_methods.append(temp_key)
-                            self.file_names.get(file).private_method_attributes[temp_key] = get_objc_method_param(line)
+                            check_duplicate = cleanup_objc_method_docum(line, "+")
+                            if check_duplicate not in self.file_names.get(file).public_methods:
+                                temp_key = cleanup_objc_method_docum(line, "-")
+                                self.file_names.get(file).private_methods.append(temp_key)
+                                self.file_names.get(file).private_method_attributes[temp_key] = get_objc_method_param(line)
                     elif get_line_type(line) == "property":
                         if operation_type == "class diagram":
                             self.file_names.get(file).private_properties.append(cleanup_objc_property(line, "-"))
@@ -83,6 +90,7 @@ class ObjectiveC:
                             self.file_names.get(file).imports.append(cleanup_objc_import(line))
 
                 f.close()
+            #do stuff self.file_names.get(file).public_methods
             try:
                 self.file_names.get(file).imports.remove(file)
             except ValueError:
@@ -112,13 +120,12 @@ class ObjectiveC:
         else:
             print("Directory ", self.basedir + "/output", " already exists")
 
-    def generate_class_diagram_image(self):
-        os.system("java -jar plantuml.jar \"" + self.basedir + "\"/output")
-        os.system("open \"" + self.basedir + "\"/output")
-
-    def generate_class_diagram(self):
+    def generate_class_diagram_plant_uml(self):
         self.prepare(operation_type="class diagram")
-        class_diagram = open(self.basedir + "/output/classDiagram.txt", "w+")
+        if os.path.exists(self.basedir + "/output/classDiagramPlantUML.txt"):
+            os.remove(self.basedir + "/output/classDiagramPlantUML.txt")
+
+        class_diagram = open(self.basedir + "/output/classDiagramPlantUML.txt", "w+")
         class_diagram.write("@startuml\n")
         class_diagram.write("skinparam classAttributeIconSize 0\n")
 
@@ -131,23 +138,56 @@ class ObjectiveC:
         for file in self.file_names:
             class_diagram.write("\n\n")
             class_diagram.write("class \"" + file + "\"{\n")
-            for private_properties in self.file_names.get(file).private_properties:
-                class_diagram.write("\t{field} " + private_properties + "\n")
             for public_properties in self.file_names.get(file).public_properties:
                 class_diagram.write("\t{field} " + public_properties + "\n")
+            for private_properties in self.file_names.get(file).private_properties:
+                class_diagram.write("\t{field} " + private_properties + "\n")
             class_diagram.write("===\n")
-            for private_methods in self.file_names.get(file).private_methods:
-                class_diagram.write("\t{method} " + private_methods + "\n")
             for public_methods in self.file_names.get(file).public_methods:
                 class_diagram.write("\t{method} " + public_methods + "\n")
+            for private_methods in self.file_names.get(file).private_methods:
+                class_diagram.write("\t{method} " + private_methods + "\n")
             class_diagram.write("}\n")
 
         class_diagram.write("@enduml")
         class_diagram.close()
-        self.generate_class_diagram_image()
+        os.system("open \"" + self.basedir + "\"/output")
+
+    def generate_class_diagram_nomnoml(self):
+        self.prepare(operation_type="class diagram")
+        if os.path.exists(self.basedir + "/output/classDiagramnomnoml.txt"):
+            os.remove(self.basedir + "/output/classDiagramnomnoml.txt")
+
+        class_diagram = open(self.basedir + "/output/classDiagramnomnoml.txt", "w+")
+
+        for file in self.file_names:
+            class_diagram.write("\n")
+            for relationship in self.file_names.get(file).imports:
+                class_diagram.write("[" + file + "]" + " <- [" + relationship + "]\n")
+            class_diagram.write("\n")
+
+        for file in self.file_names:
+            class_diagram.write("\n\n")
+            class_diagram.write("[" + file + "|\n")
+            for public_properties in self.file_names.get(file).public_properties:
+                class_diagram.write(public_properties + "\n")
+            for private_properties in self.file_names.get(file).private_properties:
+                class_diagram.write(private_properties + "\n")
+            class_diagram.write("|\n")
+            for public_methods in self.file_names.get(file).public_methods:
+                class_diagram.write(public_methods + "\n")
+            for private_methods in self.file_names.get(file).private_methods:
+                class_diagram.write(private_methods + "\n")
+            class_diagram.write("]\n")
+
+        class_diagram.close()
+        os.system("open \"" + self.basedir + "\"/output")
 
     def generate_documentation(self):
         self.prepare(operation_type="documentation")
+        if os.path.exists(self.basedir + "/output/TechnicalDocumentation.md"):
+            os.remove(self.basedir + "/output/TechnicalDocumentation.md")
+
         technical_documentation = open(self.basedir + "/output/TechnicalDocumentation.md", "w+")
         technical_documentation.write("## Getting Started" + "\n\n")
         technical_documentation.write("[todo] add simple description" + "\n\n")
