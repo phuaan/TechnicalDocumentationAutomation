@@ -69,10 +69,7 @@ class ObjectiveC:
                     if get_line_type(line) == "method":
                         if operation_type == "class diagram":
                             check_duplicate = cleanup_objc_method_class_diag(line, "+")
-                            print("check dupe", check_duplicate)
-                            print("public method", self.file_names.get(file).public_methods)
                             if check_duplicate not in self.file_names.get(file).public_methods:
-                                print("pass")
                                 self.file_names.get(file).private_methods.append(cleanup_objc_method_class_diag(line, "-"))
                         elif operation_type == "documentation":
                             check_duplicate = cleanup_objc_method_docum(line, "+")
